@@ -36,6 +36,7 @@ DimPlot(pbmc_Normal)
 #Same Procedure for TLGL Patients
 Idents(object = pbmc_TLGL) <- "celltype"
 Idents(pbmc_TLGL)
+table(Idents(pbmc_TLGL))
 DimPlot(pbmc_TLGL)
 
 #Create a new class that combine celltype and diagnosis status together
@@ -56,14 +57,20 @@ unique(pbmc_TLGL$celltype)
 
 Idents(object = pbmc) <- "celltype"
 
+Meta.de<- data.frame()
 for(cell in unique(pbmc$celltype)){
   if(cell == 'TLGLL' | cell == 'NKLGLL'){
     next
   }
-  Normal <-subset(x=pbmc_Normal, idents=cell)
-  TLGL <- subset(x=pbmc_TLGL, idents=cell)
-  FindMarkers(pbmc, ident.1='Normal', ident.2='TLGL', test.use='MAST', verbose=TRUE)
- 
+  
+  Normal_Iden<-paste(cell, "_Normal", sep="")
+  TLGL_Iden<- paste(cell, "_TLGL", sep="")
+  
+  
+  
+  Temp.de<-FindMarkers(pbmc, ident.1=Normal_Iden, ident.2=TLGL_Iden, test.use='MAST', verbose=TRUE)
+  Temp.de$celltype <- rep(cell, nrow(Temp.de))
+  Meta.de<- rbind(Meta.de, Temp.de)
 }
 
 CD14_Mono.de <-FindMarkers(pbmc, ident.1 = 'CD14 Mono_Normal', ident.2="CD14 Mono_TLGL", test.use="MAST", verbose=TRUE)
