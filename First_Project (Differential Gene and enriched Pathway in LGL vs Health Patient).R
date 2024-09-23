@@ -45,7 +45,7 @@ pbmc$celltype.stim <-paste(pbmc$celltype, pbmc$diagnosis, sep="_")
 Idents(pbmc) <- "celltype.stim"
 
 #Sample differential Gene Analaysis (Treg)
-Treg.de <-FindMarkers(pbmc, ident.1='Treg_TLGL', ident.2="Treg_Normal", latent.var=c("batch","donor","tissue"), test.use="MAST", verbose=TRUE)
+Treg.de <-FindMarkers(pbmc, ident.1='Treg_TLGL', ident.2="Treg_Normal", latent.var="batch", test.use="MAST", verbose=TRUE)
 Treg.de$celltype <- rep('Treg', each=nrow(Treg.de))
 
 
@@ -54,7 +54,6 @@ Treg.de$celltype <- rep('Treg', each=nrow(Treg.de))
 
 
 Meta.de<- data.frame()
-latent_features<- 
 for(cell in unique(pbmc$celltype)){
   if(cell == 'TLGLL' | cell == 'NKLGLL'){
     next
