@@ -115,28 +115,38 @@ for(cell in unique(pbmc$celltype)){
   # ggsave(title_dot,width=7, height=10, dpi=300, limitsize = FALSE)
   
 }
+#Download the Data from previous differential gene analysis
+
 data<-read.csv("Meta.csv")
+
+#Clean the data and rename the index as the gene symbol
 data = data[-1,]
 rownames(data) <- data$X
 data=data[,-1]
 
+#Store thr gene symbol as a gene list and convert it into ENTREZID
 original_gene_list <- rownames(data)
 gene_list<-na.omit(original_gene_list)
 gene_list = sort(gene_list, decreasing = TRUE)
 ID<-mapIds(org.Hs.eg.db, keys = gene_list,
            column = "ENTREZID", keytype = "SYMBOL")
 
+#Swap the index from gene symbol to ENTREZID
 rownames(data)<-ID
 data$ENTREZID<-ID
+
+#Split the data into lists based on celltype
 data_by_celltype<-group_split(data,data$celltype)
 cell_names<-NA
 
+#Extract crll type names and name each gene list
 for (cell in data_by_celltype){
     cell_names<-c(cell_names,cell$celltype[1])  
 }
 cell_names<-cell_names[-1]
 names(data_by_celltype)<-cell_names
 
+#Fill the List
 nested_list<-vector("list", 21)  
 for (i in 1:21) {
   # Create an inner list for multiples of i
@@ -148,6 +158,7 @@ for (i in 1:21) {
 # Name the outer list elements
 names(nested_list) <- cell_names
 
+#do thr thematic comparison
 ck <- compareCluster(geneCluster = nested_list, fun = enrichKEGG)
 ck <- setReadable(ck, OrgDb = org.Hs.eg.db, keyType="ENTREZID")
 head(ck)
@@ -162,6 +173,7 @@ ck_CD4_T_cell <- setReadable(ck_CD4_T_cell, OrgDb = org.Hs.eg.db, keyType="ENTRE
 ck_CD8_T_cell <- compareCluster(geneCluster = nested_list[10:13], fun = enrichKEGG)
 ck_CD8_T_cell <- setReadable(ck_CD8_T_cell, OrgDb = org.Hs.eg.db, keyType="ENTREZID")
 
+#Make dotplot
 dotplot(ck)
 
 
